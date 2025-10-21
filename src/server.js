@@ -17,6 +17,7 @@ const ticketRoutes = require('./routes/ticket.routes');
 const walletRoutes = require('./routes/wallet.routes');
 const adminRoutes = require('./routes/admin.routes');
 const liveRoutes = require('./routes/live.routes');
+const setupRoutes = require('./routes/setup.routes');
 
 // Import socket handler
 const socketHandler = require('./socket/socket.handler');
@@ -89,6 +90,7 @@ app.use('/api/tickets', ticketRoutes);
 app.use('/api/wallet', walletRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/live', liveRoutes);
+app.use('/api/setup', setupRoutes);
 
 // 404 handler
 app.use((req, res) => {
