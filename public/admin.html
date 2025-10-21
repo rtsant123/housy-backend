@@ -191,13 +191,32 @@
             const phone = document.getElementById('loginPhone').value;
             const password = document.getElementById('loginPassword').value;
 
+            // Validate inputs
+            if (!phone || !password) {
+                alert('Please enter phone number and password');
+                return;
+            }
+
+            // Show loading
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = 'Logging in...';
+            btn.disabled = true;
+
             try {
+                console.log('Attempting login to:', `${API_URL}/auth/login`);
+                console.log('Phone:', phone);
+
                 const res = await fetch(`${API_URL}/auth/login`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ phone, password })
                 });
+
+                console.log('Response status:', res.status);
+
                 const data = await res.json();
+                console.log('Response data:', data);
 
                 if (data.success) {
                     token = data.data.token;
@@ -207,9 +226,14 @@
                     loadDashboard();
                 } else {
                     alert('Login failed: ' + data.message);
+                    btn.textContent = originalText;
+                    btn.disabled = false;
                 }
             } catch (error) {
-                alert('Error: ' + error.message);
+                console.error('Login error:', error);
+                alert('Error: ' + error.message + '\n\nCheck console for details.');
+                btn.textContent = originalText;
+                btn.disabled = false;
             }
         }
 
