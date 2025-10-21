@@ -1,12 +1,15 @@
 const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
+const { formatPhoneNumber } = require('../utils/otp.util');
 
 // @desc    Create initial admin user (one-time setup)
 // @route   POST /api/setup/create-admin
 // @access  Public (but should be disabled after first use)
 router.post('/create-admin', async (req, res) => {
   try {
+    const formattedPhone = formatPhoneNumber('9876543210');
+
     // Check if any admin exists
     const adminExists = await User.findOne({ role: 'admin' });
 
@@ -18,7 +21,7 @@ router.post('/create-admin', async (req, res) => {
     }
 
     // Check if user with phone exists
-    const existingUser = await User.findOne({ phone: '9876543210' });
+    const existingUser = await User.findOne({ phone: formattedPhone });
 
     if (existingUser) {
       // Update existing user to admin
@@ -41,7 +44,7 @@ router.post('/create-admin', async (req, res) => {
     // Create new admin user
     const admin = await User.create({
       name: 'Admin User',
-      phone: '9876543210',
+      phone: formattedPhone,
       password: 'admin123',
       role: 'admin',
       kycVerified: true,
