@@ -59,6 +59,24 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'Housie API is running' });
 });
 
+// API root
+app.get('/api', (req, res) => {
+  res.json({
+    status: 'ok',
+    message: 'Housie API v1.0',
+    endpoints: {
+      auth: '/api/auth',
+      games: '/api/games',
+      users: '/api/users',
+      wallet: '/api/wallet',
+      tickets: '/api/tickets',
+      leagues: '/api/leagues',
+      admin: '/api/admin',
+      live: '/api/live'
+    }
+  });
+});
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
