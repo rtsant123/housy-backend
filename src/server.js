@@ -54,6 +54,9 @@ app.use(express.urlencoded({ extended: true }));
 // Serve uploaded files
 app.use('/uploads', express.static('uploads'));
 
+// Serve admin panel
+app.use(express.static('public'));
+
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', message: 'Housie API is running' });
