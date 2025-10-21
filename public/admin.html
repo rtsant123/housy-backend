@@ -53,7 +53,7 @@
                 <label>Password</label>
                 <input type="password" id="loginPassword" placeholder="Enter password">
             </div>
-            <button class="btn btn-primary" style="width: 100%; padding: 15px;" onclick="login()">Login</button>
+            <button class="btn btn-primary" style="width: 100%; padding: 15px;" onclick="login(event)" id="loginBtn">Login</button>
             <p style="margin-top: 20px; text-align: center; color: #666; font-size: 14px;">Default: 9876543210 / admin123</p>
         </div>
     </div>
@@ -187,9 +187,14 @@
         const API_URL = 'https://housy-backend-production.up.railway.app/api';
         let token = localStorage.getItem('adminToken');
 
-        async function login() {
+        async function login(e) {
+            console.log('Login function called!');
+
             const phone = document.getElementById('loginPhone').value;
             const password = document.getElementById('loginPassword').value;
+
+            console.log('Phone value:', phone);
+            console.log('Password value:', password ? '***' : 'empty');
 
             // Validate inputs
             if (!phone || !password) {
@@ -198,14 +203,13 @@
             }
 
             // Show loading
-            const btn = event.target;
+            const btn = document.getElementById('loginBtn');
             const originalText = btn.textContent;
             btn.textContent = 'Logging in...';
             btn.disabled = true;
 
             try {
                 console.log('Attempting login to:', `${API_URL}/auth/login`);
-                console.log('Phone:', phone);
 
                 const res = await fetch(`${API_URL}/auth/login`, {
                     method: 'POST',
@@ -219,6 +223,7 @@
                 console.log('Response data:', data);
 
                 if (data.success) {
+                    console.log('Login successful!');
                     token = data.data.token;
                     localStorage.setItem('adminToken', token);
                     document.getElementById('loginSection').style.display = 'none';
