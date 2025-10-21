@@ -10,21 +10,18 @@ router.post('/create-admin', async (req, res) => {
   try {
     const formattedPhone = formatPhoneNumber('9876543210');
 
-    // Check if any admin exists
-    const adminExists = await User.findOne({ role: 'admin' });
-
-    if (adminExists) {
-      return res.status(400).json({
-        success: false,
-        message: 'Admin user already exists. This endpoint is disabled.',
-      });
-    }
-
-    // Check if user with phone exists
-    const existingUser = await User.findOne({ phone: formattedPhone });
+    // Check if user with formatted phone exists
+    let existingUser = await User.findOne({ phone: formattedPhone });
 
     if (existingUser) {
-      // Update existing user to admin
+      // Update to admin if not already
+      if (existingUser.role === 'admin') {
+        return res.status(400).json({
+          success: false,
+          message: 'Admin user already exists. Login at admin panel.',
+        });
+      }
+
       existingUser.role = 'admin';
       existingUser.password = 'admin123';
       existingUser.kycVerified = true;
@@ -40,6 +37,9 @@ router.post('/create-admin', async (req, res) => {
         },
       });
     }
+
+    // Delete any old admin with wrong phone format
+    await User.deleteMany({ role: 'admin', phone: { $ne: formattedPhone } });
 
     // Create new admin user
     const admin = await User.create({
