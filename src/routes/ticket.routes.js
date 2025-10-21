@@ -1,10 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const ticketController = require('../controllers/ticket.controller');
-const { protect, authorize } = require('../middleware/auth.middleware');
+const { protect } = require('../middleware/auth.middleware');
 
-// Routes will be defined here
-// Example:
-// router.post('/example', protect, ticketController.exampleMethod);
+router.use(protect);
+router.post('/', ticketController.createTicket);
+router.get('/my-tickets', ticketController.getMyTickets);
+router.put('/:id', ticketController.updateTicket);
+router.delete('/:id', ticketController.deleteTicket);
+router.get('/league/:leagueId', ticketController.getTicketsByLeague);
 
 module.exports = router;

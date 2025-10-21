@@ -1,10 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const userController = require('../controllers/user.controller');
-const { protect, authorize } = require('../middleware/auth.middleware');
+const { protect } = require('../middleware/auth.middleware');
 
-// Routes will be defined here
-// Example:
-// router.post('/example', protect, userController.exampleMethod);
+router.use(protect);
+router.get('/profile', userController.getProfile);
+router.put('/profile', userController.updateProfile);
+router.post('/kyc', userController.uploadKyc);
+router.get('/kyc/status', userController.getKycStatus);
+router.get('/stats', userController.getUserStats);
+router.get('/leaderboard', userController.getLeaderboard);
 
 module.exports = router;
