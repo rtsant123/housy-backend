@@ -92,6 +92,9 @@ router.post('/seed-database', async (req, res) => {
       }
     }
 
+    // Get admin user (or use first test user as creator)
+    const admin = await User.findOne({ phone: '+919876543210' }) || testUsers[0];
+
     // Create sample games
     const now = new Date();
     const games = [];
@@ -99,21 +102,15 @@ router.post('/seed-database', async (req, res) => {
     // Live game
     const liveGame = await Game.create({
       title: '🔴 Live Game - Morning Jackpot',
-      description: 'Join now! Game in progress with ₹50,000 prize pool',
       entryFee: 100,
       prizePool: 50000,
-      maxPlayers: 500,
-      currentPlayers: 245,
-      scheduledAt: new Date(now.getTime() - 10 * 60000),
+      maxSpots: 500,
+      filledSpots: 245,
+      scheduledTime: new Date(now.getTime() - 10 * 60000),
+      deadline: new Date(now.getTime() + 1 * 60 * 60000),
       status: 'live',
       calledNumbers: [5, 12, 23, 34, 45, 56, 67, 78, 89, 7, 18],
-      prizes: {
-        earlyFive: 5000,
-        topLine: 8000,
-        middleLine: 8000,
-        bottomLine: 8000,
-        fullHouse: 20000,
-      },
+      createdBy: admin._id,
     });
     games.push(liveGame);
 
@@ -121,54 +118,36 @@ router.post('/seed-database', async (req, res) => {
     const upcomingGames = [
       {
         title: '⏰ Afternoon Special',
-        description: 'Big prizes! Entry fee only ₹50',
         entryFee: 50,
         prizePool: 25000,
-        maxPlayers: 500,
-        currentPlayers: 120,
-        scheduledAt: new Date(now.getTime() + 2 * 60 * 60000),
+        maxSpots: 500,
+        filledSpots: 120,
+        scheduledTime: new Date(now.getTime() + 2 * 60 * 60000),
+        deadline: new Date(now.getTime() + 1.5 * 60 * 60000),
         status: 'upcoming',
-        prizes: {
-          earlyFive: 2500,
-          topLine: 5000,
-          middleLine: 5000,
-          bottomLine: 5000,
-          fullHouse: 7500,
-        },
+        createdBy: admin._id,
       },
       {
         title: '🌟 Evening Mega Jackpot',
-        description: '₹1 Lakh prize pool! Limited seats',
         entryFee: 200,
         prizePool: 100000,
-        maxPlayers: 500,
-        currentPlayers: 350,
-        scheduledAt: new Date(now.getTime() + 6 * 60 * 60000),
+        maxSpots: 500,
+        filledSpots: 350,
+        scheduledTime: new Date(now.getTime() + 6 * 60 * 60000),
+        deadline: new Date(now.getTime() + 5.5 * 60 * 60000),
         status: 'upcoming',
-        prizes: {
-          earlyFive: 10000,
-          topLine: 20000,
-          middleLine: 20000,
-          bottomLine: 20000,
-          fullHouse: 30000,
-        },
+        createdBy: admin._id,
       },
       {
         title: '🌙 Night Express',
-        description: 'Quick game with instant prizes',
         entryFee: 75,
         prizePool: 30000,
-        maxPlayers: 400,
-        currentPlayers: 85,
-        scheduledAt: new Date(now.getTime() + 12 * 60 * 60000),
+        maxSpots: 400,
+        filledSpots: 85,
+        scheduledTime: new Date(now.getTime() + 12 * 60 * 60000),
+        deadline: new Date(now.getTime() + 11.5 * 60 * 60000),
         status: 'upcoming',
-        prizes: {
-          earlyFive: 3000,
-          topLine: 6000,
-          middleLine: 6000,
-          bottomLine: 6000,
-          fullHouse: 9000,
-        },
+        createdBy: admin._id,
       },
     ];
 
@@ -180,27 +159,15 @@ router.post('/seed-database', async (req, res) => {
     // Completed game
     const completedGame = await Game.create({
       title: '✅ Morning Rush (Completed)',
-      description: 'Yesterday\'s game - Check results',
       entryFee: 100,
       prizePool: 50000,
-      maxPlayers: 500,
-      currentPlayers: 500,
-      scheduledAt: new Date(now.getTime() - 24 * 60 * 60000),
+      maxSpots: 500,
+      filledSpots: 500,
+      scheduledTime: new Date(now.getTime() - 24 * 60 * 60000),
+      deadline: new Date(now.getTime() - 24.5 * 60 * 60000),
       status: 'completed',
-      winners: {
-        earlyFive: testUsers[0]?._id,
-        topLine: testUsers[1]?._id,
-        middleLine: testUsers[2]?._id,
-        bottomLine: testUsers[3]?._id,
-        fullHouse: testUsers[4]?._id,
-      },
-      prizes: {
-        earlyFive: 5000,
-        topLine: 10000,
-        middleLine: 10000,
-        bottomLine: 10000,
-        fullHouse: 15000,
-      },
+      createdBy: admin._id,
+      completedAt: new Date(now.getTime() - 23 * 60 * 60000),
     });
     games.push(completedGame);
 
