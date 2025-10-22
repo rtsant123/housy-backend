@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Number Caller - Housie Admin</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .status.live {
+            background: #10b981;
+            color: white;
+        }
+
+        .status.stopped {
+            background: #ef4444;
+            color: white;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .current-number {
+            text-align: center;
+            padding: 40px;
+            margin: 20px 0;
+        }
+
+        .current-number h2 {
+            font-size: 18px;
+            color: #666;
+            margin-bottom: 10px;
+        }
+
+        .number-display {
+            font-size: 120px;
+            font-weight: bold;
+            color: #667eea;
+            text-shadow: 3px 3px 0px rgba(0,0,0,0.1);
+        }
+
+        .number-grid {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .number-btn {
+            aspect-ratio: 1;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            background: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .number-btn:hover:not(.called) {
+            background: #f3f4f6;
+            transform: scale(1.05);
+        }
+
+        .number-btn.called {
+            background: #10b981;
+            color: white;
+            border-color: #10b981;
+            cursor: not-allowed;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        button {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-success {
+            background: #10b981;
+            color: white;
+            flex: 1;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .stat-box {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .game-selector {
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f9fafb;
+            border-radius: 10px;
+        }
+
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        .called-list {
+            max-height: 300px;
+            overflow-y: auto;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .called-num {
+            width: 40px;
+            height: 40px;
+            background: #10b981;
+            color: white;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 Live Number Caller</h1>
+            <span class="status stopped" id="gameStatus">● Stopped</span>
+        </div>
+
+        <div class="main-grid">
+            <!-- Left Column -->
+            <div>
+                <div class="card">
+                    <div class="game-selector">
+                        <label style="font-weight: bold; margin-bottom: 10px; display: block;">Select Live Game:</label>
+                        <select id="gameSelector">
+                            <option value="">Select a game...</option>
+                        </select>
+                    </div>
+
+                    <div class="current-number">
+                        <h2>Current Number</h2>
+                        <div class="number-display" id="currentNumber">--</div>
+                    </div>
+
+                    <div class="controls">
+                        <button class="btn-success" id="callBtn" disabled>📢 Call Next Number</button>
+                        <button class="btn-danger" id="resetBtn">🔄 Reset</button>
+                    </div>
+
+                    <h3 style="margin-top: 30px; margin-bottom: 15px;">Manual Number Selection</h3>
+                    <div class="number-grid" id="numberGrid"></div>
+                </div>
+            </div>
+
+            <!-- Right Column -->
+            <div>
+                <div class="card">
+                    <h3>Game Statistics</h3>
+                    <div class="stats">
+                        <div class="stat-box">
+                            <div class="stat-label">Called</div>
+                            <div class="stat-value" id="calledCount">0</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-label">Remaining</div>
+                            <div class="stat-value" id="remainingCount">90</div>
+                        </div>
+                    </div>
+
+                    <h3 style="margin-top: 25px;">Called Numbers</h3>
+                    <div class="called-list" id="calledList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let calledNumbers = [];
+        let currentGameId = null;
+        const API_URL = window.location.origin + '/api';
+
+        // Initialize number grid (1-90)
+        const numberGrid = document.getElementById('numberGrid');
+        for (let i = 1; i <= 90; i++) {
+            const btn = document.createElement('button');
+            btn.className = 'number-btn';
+            btn.textContent = i;
+            btn.dataset.number = i;
+            btn.onclick = () => callSpecificNumber(i);
+            numberGrid.appendChild(btn);
+        }
+
+        // Load games
+        async function loadGames() {
+            try {
+                const response = await fetch(`${API_URL}/games/live`);
+                const data = await response.json();
+
+                const selector = document.getElementById('gameSelector');
+                selector.innerHTML = '<option value="">Select a game...</option>';
+
+                if (data.success && data.data && data.data.length > 0) {
+                    data.data.forEach(game => {
+                        const option = document.createElement('option');
+                        option.value = game._id;
+                        option.textContent = `${game.title} (${game.status})`;
+                        selector.appendChild(option);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading games:', error);
+            }
+        }
+
+        // Game selected
+        document.getElementById('gameSelector').addEventListener('change', async function(e) {
+            currentGameId = e.target.value;
+            if (currentGameId) {
+                await loadGameState();
+                document.getElementById('callBtn').disabled = false;
+                document.getElementById('gameStatus').textContent = '● Live';
+                document.getElementById('gameStatus').className = 'status live';
+            } else {
+                document.getElementById('callBtn').disabled = true;
+                document.getElementById('gameStatus').textContent = '● Stopped';
+                document.getElementById('gameStatus').className = 'status stopped';
+            }
+        });
+
+        // Load game state
+        async function loadGameState() {
+            if (!currentGameId) return;
+
+            try {
+                const response = await fetch(`${API_URL}/live/game/${currentGameId}`);
+                const data = await response.json();
+
+                if (data.success && data.data) {
+                    calledNumbers = data.data.calledNumbers || [];
+                    updateUI();
+                }
+            } catch (error) {
+                console.error('Error loading game state:', error);
+            }
+        }
+
+        // Call random number
+        document.getElementById('callBtn').addEventListener('click', async () => {
+            if (!currentGameId) return;
+
+            const remaining = Array.from({length: 90}, (_, i) => i + 1)
+                .filter(n => !calledNumbers.includes(n));
+
+            if (remaining.length === 0) {
+                alert('All numbers have been called!');
+                return;
+            }
+
+            const number = remaining[Math.floor(Math.random() * remaining.length)];
+            await callNumber(number);
+        });
+
+        // Call specific number
+        async function callSpecificNumber(number) {
+            if (!currentGameId) {
+                alert('Please select a game first!');
+                return;
+            }
+
+            if (calledNumbers.includes(number)) {
+                alert('This number has already been called!');
+                return;
+            }
+
+            await callNumber(number);
+        }
+
+        // Call number API
+        async function callNumber(number) {
+            try {
+                const response = await fetch(`${API_URL}/live/call/${currentGameId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ number })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    calledNumbers = data.data.calledNumbers;
+                    document.getElementById('currentNumber').textContent = number;
+                    updateUI();
+
+                    // Play sound or announcement
+                    speakNumber(number);
+                }
+            } catch (error) {
+                console.error('Error calling number:', error);
+                alert('Failed to call number. Check console for details.');
+            }
+        }
+
+        // Speak number (Text-to-Speech)
+        function speakNumber(number) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(`Number ${number}`);
+                utterance.rate = 0.8;
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+
+        // Update UI
+        function updateUI() {
+            // Update stats
+            document.getElementById('calledCount').textContent = calledNumbers.length;
+            document.getElementById('remainingCount').textContent = 90 - calledNumbers.length;
+
+            // Update number grid
+            document.querySelectorAll('.number-btn').forEach(btn => {
+                const num = parseInt(btn.dataset.number);
+                if (calledNumbers.includes(num)) {
+                    btn.classList.add('called');
+                } else {
+                    btn.classList.remove('called');
+                }
+            });
+
+            // Update called list
+            const calledList = document.getElementById('calledList');
+            calledList.innerHTML = '';
+            [...calledNumbers].reverse().forEach(num => {
+                const div = document.createElement('div');
+                div.className = 'called-num';
+                div.textContent = num;
+                calledList.appendChild(div);
+            });
+        }
+
+        // Reset
+        document.getElementById('resetBtn').addEventListener('click', async () => {
+            if (!confirm('Reset will clear all called numbers. Continue?')) return;
+
+            calledNumbers = [];
+            document.getElementById('currentNumber').textContent = '--';
+            updateUI();
+        });
+
+        // Load games on page load
+        loadGames();
+    </script>
+</body>
+</html>
