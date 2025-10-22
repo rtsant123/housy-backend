@@ -66,11 +66,11 @@
 
         <div class="container">
             <div class="tabs">
-                <div class="tab active" onclick="showTab('dashboard')">📊 Dashboard</div>
-                <div class="tab" onclick="showTab('payments')">💰 Pending Payments</div>
-                <div class="tab" onclick="showTab('games')">🎮 Create Game</div>
-                <div class="tab" onclick="showTab('winners')">🏆 Declare Winner</div>
-                <div class="tab" onclick="showTab('users')">👥 Users</div>
+                <div class="tab active" data-tab="dashboard">📊 Dashboard</div>
+                <div class="tab" data-tab="payments">💰 Pending Payments</div>
+                <div class="tab" data-tab="games">🎮 Create Game</div>
+                <div class="tab" data-tab="winners">🏆 Declare Winner</div>
+                <div class="tab" data-tab="users">👥 Users</div>
             </div>
 
             <div id="dashboard" class="section active">
@@ -281,6 +281,14 @@
                     login(e);
                 }
             });
+
+            // Tab click handlers
+            document.querySelectorAll('.tab').forEach(tabElement => {
+                tabElement.addEventListener('click', function() {
+                    const tabName = this.getAttribute('data-tab');
+                    showTab(tabName, this);
+                });
+            });
         });
 
         async function loadDashboard() {
@@ -456,10 +464,10 @@
             }
         }
 
-        function showTab(tab) {
+        function showTab(tab, element) {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-            event.target.classList.add('active');
+            element.classList.add('active');
             document.getElementById(tab).classList.add('active');
         }
 
