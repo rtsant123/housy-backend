@@ -197,12 +197,13 @@ router.post('/seed-database', async (req, res) => {
     });
     leagues.push(privateLeague);
 
-    // Create tickets for live game
+    // Create tickets for live game and league
     const tickets = [];
     for (let i = 0; i < Math.min(3, testUsers.length); i++) {
       const ticket = await Ticket.create({
         userId: testUsers[i]._id,
         gameId: liveGame._id,
+        leagueId: publicLeague._id,
         numbers: generateHousieTicket(),
         price: liveGame.entryFee,
         markedNumbers: i === 0 ? [5, 12, 23] : [],
