@@ -284,24 +284,33 @@
         });
 
         async function loadDashboard() {
+            console.log('📊 Loading dashboard...');
             try {
                 const res = await fetch(`${API_URL}/admin/dashboard/stats`, {
                     headers: { 'Authorization': `Bearer ${token}` }
                 });
                 const data = await res.json();
+                console.log('Dashboard data:', data);
 
                 if (data.success) {
-                    document.getElementById('totalUsers').textContent = data.data.totalUsers;
-                    document.getElementById('totalGames').textContent = data.data.totalGames;
-                    document.getElementById('pendingPayments').textContent = data.data.pendingPayments;
-                    document.getElementById('totalRevenue').textContent = '₹' + data.data.totalRevenue.toLocaleString();
+                    document.getElementById('totalUsers').textContent = data.data.totalUsers || 0;
+                    document.getElementById('totalGames').textContent = data.data.totalGames || 0;
+                    document.getElementById('pendingPayments').textContent = data.data.pendingPayments || 0;
+                    document.getElementById('totalRevenue').textContent = '₹' + (data.data.totalRevenue || 0).toLocaleString();
+                    console.log('✅ Dashboard loaded successfully');
+                } else {
+                    console.error('❌ Dashboard API failed:', data);
+                    alert('Failed to load dashboard: ' + data.message);
                 }
             } catch (error) {
-                console.error('Error loading dashboard:', error);
+                console.error('❌ Error loading dashboard:', error);
+                alert('Dashboard error: ' + error.message);
             }
-            loadPayments();
-            loadGames();
-            loadUsers();
+
+            // Load other data
+            await loadPayments();
+            await loadGames();
+            await loadUsers();
         }
 
         async function loadPayments() {
