@@ -23,6 +23,9 @@ const seedRoutes = require('./routes/seed.routes');
 // Import socket handler
 const socketHandler = require('./socket/socket.handler');
 
+// Import game scheduler
+const GameScheduler = require('./services/game.scheduler');
+
 // Import error handler
 const errorHandler = require('./middleware/error.middleware');
 
@@ -105,6 +108,9 @@ app.use(errorHandler);
 // Socket.io connection handler
 socketHandler(io);
 
+// Initialize game scheduler
+let gameScheduler;
+
 // Connect to MongoDB
 mongoose
   .connect(process.env.MONGODB_URI, {
@@ -114,11 +120,19 @@ mongoose
   .then(() => {
     console.log('✅ MongoDB connected successfully');
 
+    // Start game scheduler
+    gameScheduler = new GameScheduler(io);
+    gameScheduler.start();
+
+    // Make scheduler accessible to routes
+    app.set('gameScheduler', gameScheduler);
+
     // Start server
     const PORT = process.env.PORT || 3000;
     server.listen(PORT, () => {
       console.log(`🚀 Server running on port ${PORT}`);
       console.log(`📡 Socket.io ready for connections`);
+      console.log(`🎮 Game scheduler active`);
       console.log(`🌍 Environment: ${process.env.NODE_ENV}`);
     });
   })
