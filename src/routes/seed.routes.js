@@ -175,39 +175,25 @@ router.post('/seed-database', async (req, res) => {
     const leagues = [];
 
     const publicLeague = await League.create({
-      name: 'Weekend Warriors',
-      description: 'Open to all! Join and compete for top prizes',
-      creatorId: testUsers[0]?._id,
+      gameId: games[1]._id, // Link to first upcoming game
       type: 'public',
+      creatorId: testUsers[0]?._id,
       entryFee: 50,
-      maxMembers: 100,
-      members: testUsers.slice(0, 3).map(u => u._id),
-      prizeDistribution: {
-        first: 5000,
-        second: 3000,
-        third: 2000,
-      },
-      startDate: new Date(now.getTime() + 24 * 60 * 60000),
-      endDate: new Date(now.getTime() + 3 * 24 * 60 * 60000),
+      maxParticipants: 100,
+      participants: testUsers.slice(0, 3).map(u => u._id),
+      status: 'open',
     });
     leagues.push(publicLeague);
 
     const privateLeague = await League.create({
-      name: 'Friends Circle',
-      description: 'Private league for close friends',
-      creatorId: testUsers[0]?._id,
+      gameId: games[2]._id, // Link to second upcoming game
       type: 'private',
+      creatorId: testUsers[0]?._id,
       leagueCode: 'FRIENDS123',
       entryFee: 100,
-      maxMembers: 50,
-      members: testUsers.slice(0, 2).map(u => u._id),
-      prizeDistribution: {
-        first: 3000,
-        second: 2000,
-        third: 1000,
-      },
-      startDate: new Date(now.getTime() + 24 * 60 * 60000),
-      endDate: new Date(now.getTime() + 7 * 24 * 60 * 60000),
+      maxParticipants: 50,
+      participants: testUsers.slice(0, 2).map(u => u._id),
+      status: 'open',
     });
     leagues.push(privateLeague);
 
