@@ -53,7 +53,7 @@
                 <label>Password</label>
                 <input type="password" id="loginPassword" placeholder="Enter password">
             </div>
-            <button class="btn btn-primary" style="width: 100%; padding: 15px;" onclick="login(event)" id="loginBtn">Login</button>
+            <button class="btn btn-primary" style="width: 100%; padding: 15px;" id="loginBtn">Login</button>
             <p style="margin-top: 20px; text-align: center; color: #666; font-size: 14px;">Default: 9876543210 / admin123</p>
         </div>
     </div>
@@ -263,9 +263,20 @@
             }
         }
 
-        // Allow Enter key to submit
+        // Setup event listeners when page loads
         document.addEventListener('DOMContentLoaded', function() {
+            // Login button click
+            document.getElementById('loginBtn').addEventListener('click', login);
+
+            // Enter key on password field
             document.getElementById('loginPassword').addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    login(e);
+                }
+            });
+
+            // Enter key on phone field
+            document.getElementById('loginPhone').addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
                     login(e);
                 }
